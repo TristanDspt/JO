@@ -13,6 +13,21 @@ df = load_and_process()
 # Titre Principal Centré
 st.markdown("<h1 style='text-align: center;'>Classements des Jeux Olympiques</h1>", unsafe_allow_html=True)
 
+# Explications
+with st.expander("❓ C'est quoi ce projet ? (Lire l'explication)"):
+    st.markdown("""
+        Bienvenue sur mon dashboard d'analyse des JO ! 
+        
+        **Le problème :** Le classement officiel des JO se base uniquement sur le nombre de médailles d'or. Si un pays a 100 médailles d'argent et 0 d'or, il sera derrière un pays qui a 1 seule médaille d'or. Pas très juste, non ?
+        
+        **Ma solution :** J'ai créé un **Classement par points** plus équilibré :
+        * 🥇 **Or** : 3 points
+        * 🥈 **Argent** : 2 points
+        * 🥉 **Bronze** : 1 point
+        
+        Ici, tu peux comparer le classement "Officiel" avec mon nouveau système et voir quelles nations s'en sortent le mieux sur la globalité de leurs performances.
+    """)
+
 liste_annees = sorted(df['Année'].unique(), reverse=True)
 annee_choisie = st.selectbox("Sélectionnez l'année des JO :", liste_annees)
 
