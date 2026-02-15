@@ -16,8 +16,6 @@ st.markdown("<h1 style='text-align: center;'>Classements des Jeux Olympiques</h1
 # Explications
 with st.expander("❓ C'est quoi ce projet ? (Lire l'explication)"):
     st.markdown("""
-        Bienvenue sur mon dashboard d'analyse des JO ! 
-        
         **Le problème :** Le classement officiel des JO se base uniquement sur le nombre de médailles d'or. Si un pays a 100 médailles d'argent et 0 d'or, il sera derrière un pays qui a 1 seule médaille d'or. Pas très juste, non ?
         
         **Ma solution :** J'ai créé un **Classement par points** plus équilibré :
