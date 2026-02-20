@@ -1,44 +1,124 @@
 import streamlit as st
 import pandas as pd
-import json
-
+from pycountry_convert import country_name_to_country_alpha2
 
 # --- PARTIE LOGIQUE / PANDAS ---
 
-@st.cache_data
+# Fonction Drapeau
+def get_flag_url(country_name):
+    if not isinstance(country_name, str):
+        return f"https://flagcdn.com/120x90/un.png"
 
+    # Nettoyage interne (sécurité supplémentaire)
+    name = country_name.replace('\xa0', '').strip()
+    
+    mapping = {
+        # Pays actuels avec noms spécifiques
+        "United States": "us",
+        "Great Britain": "gb",
+        "South Korea": "kr",
+        "China": "cn",
+        "Chinese Taipei": "tw",
+        "Kosovo": "xk",
+        "Netherlands": "nl",
+        "Virgin Islands, US": "vi",
+        "Republic of Korea": "kr", 
+        "Hong Kong": "hk",
+        # Entités spéciales (on utilise souvent le drapeau Olympique 'un' ou 'olympic')
+        "ROC": "un", # Russie (historique récent)
+        "Independent Olympic Athletes": "un",
+        "Individual Neutral Athletes": "un",
+        "Refugee Olympic Team": "un",
+        "Mixed team": "un",
+        "Unified Team": "un",
+        # Pays historiques (on mappe vers le pays successeur ou ONU)
+        "USSR": "ru",
+        "Yugoslavia": "rs", # Serbie
+        "Serbia and Montenegro": "rs",
+        "Czechoslovakia": "cz", # Tchéquie
+        "German Democratic Republic (Germany)": "de",
+        "Netherlands Antilles": "an"
+    }
+    
+    if name in mapping:
+        code = mapping[name]
+        return f"https://flagcdn.com/120x90/{code}.png"
+    
+    try:
+        code = country_name_to_country_alpha2(name).lower()
+        return f"https://flagcdn.com/120x90/{code}.png"
+    except:
+        return f"https://flagcdn.com/120x90/un.png"
+
+# Chargement des données
+@st.cache_data(ttl=300)
 def load_and_process():
-    # Chargement du JSON
-    with open('jo_metadata.json', 'r', encoding='utf-8') as f:
-        config_jo = json.load(f)
+    df_histo = pd.read_csv('olympic_games.csv')
+    df_histo.drop(columns='athletes', inplace=True)
+    df_recent = pd.read_excel('medals.xlsx')
 
-    # Chargement du Excel
-    xls = pd.ExcelFile("medals.xlsx")
+    # Nettoyage des espaces
+    df_histo['country'] = df_histo['country'].str.strip()
+    df_recent['country'] = df_recent['country'].str.replace('\xa0', '', regex=False).str.strip()
 
-    # Boucle de chargement Excel
-    all_data = []
+    # Mapping complet
+    mapping = {
+        "United States of America": "United States",
+        "People's Republic of China": "China",
+        "Republic of Korea": "South Korea",
+        "United Kingdom": "Great Britain",
+        "Russian Federation": "Russia",
+        "Islamic Republic of Iran": "Iran",
+        "Hong Kong, China": "Hong Kong",
+        "Czechia": "Czech Republic",
+        "Ivory Coast": "Côte d'Ivoire",
+        "Democratic People's Republic of Korea": "North Korea"
+    }
+    df_histo['country'] = df_histo['country'].replace(mapping)
 
-    for sheet in xls.sheet_names:
-        df_tmp = pd.read_excel(xls, sheet_name=sheet)
-        
-        # On split le nom de ta feuille (ex: "2024_Ete")
-        saison, annee = sheet.split('_')
-        
-        # On va chercher l'info : config_jo["Ete"]["2024"]
-        # .get() permet d'éviter un crash si l'année n'existe pas dans le JSON
-        info = config_jo.get(saison, {}).get(annee, {"ville": "Inconnue", "pays": "Inconnu"})
-        
-        df_tmp['Année'] = annee
-        df_tmp['Saison'] = saison
-        df_tmp['Ville'] = info['ville']
-        df_tmp['Pays Hôte'] = info['pays']
-        
-        all_data.append(df_tmp)
+    # Fusion
+    df = pd.concat([df_histo, df_recent], ignore_index=True)
 
-    df = pd.concat(all_data, ignore_index=True)
+    # Calcul des points
+    df['Points'] = (df.gold * 3) + (df.silver * 2) + (df.bronze * 1)
 
-    # Valeur des médailles
-    gold, silver, bronze = 3, 2, 1
-    df['Points'] = (df.Or * gold) + (df.Argent * silver) + (df.Bronze * bronze)
+    # Création du RANG OFFICIEL (Tri Or > Argent > Bronze)
+    # 1. On crée une colonne temporaire de tuples (Or, Argent, Bronze)
+    # Les tuples se comparent naturellement : (1, 0, 0) > (0, 10, 10)
+    df['rank_key'] = list(zip(df.gold, df.silver, df.bronze))
+
+    # 2. On calcule le rang sur cette clé de tuple
+    # On utilise method='min' pour avoir le 1, 1, 3
+    df['Rang'] = df.groupby(['year', 'games_type'])['rank_key'].rank(method='min', ascending=False).astype(int)
+
+    # 3. On vire la clé temporaire
+    df.drop(columns='rank_key', inplace=True)
+
+    # Calcul du total
+    df['Total'] = df.gold + df.silver + df.bronze
+    
+    # Renommage "User Friendly"
+    df = df.rename(columns={
+        'year': 'Année',
+        'games_type': 'Saison',
+        'country': 'Nation',
+        'host_city': 'Ville',
+        'host_country': 'Pays Hôte',
+        'gold': 'Or',
+        'silver': 'Argent',
+        'bronze': 'Bronze'
+    })
+    # Traduction des saisons pour l'affichage
+    df['Saison'] = df['Saison'].replace({'Summer': 'été', 'Winter': 'hiver'})
+
+    # On crée la colonne Drapeau juste avant de finir
+    df['Drapeau'] = df['Nation'].apply(get_flag_url)
+
+    # Ordre des colonnes
+    ordre_final = [
+        'Rang', 'Drapeau', 'Nation', 'Or', 'Argent', 'Bronze', 'Total', 'Points', 
+        'Année', 'Saison', 'Ville', 'Pays Hôte'
+    ]
+    df = df[ordre_final]
 
     return df
