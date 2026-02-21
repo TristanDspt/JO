@@ -1,4 +1,4 @@
-# 🏅 JO Score Master : Le Classement Alternatif
+# 🏅 JO : Le Classement Alternatif
 
 👉 **Tester l'application en direct :** [tristandspt-jo.streamlit.app](https://tristandspt-jo.streamlit.app)
 
@@ -6,7 +6,8 @@ Ce projet Streamlit propose une nouvelle lecture de l'histoire des Jeux Olympiqu
 
 ## 🚀 Le Concept
 Le classement officiel des JO peut être biaisé : une seule médaille d'or place une nation devant une autre ayant récolté 50 médailles d'argent. 
-**Ma solution :** * 🥇 **Or** : 3 points
+**Ma solution :** 
+* 🥇 **Or** : 3 points
 * 🥈 **Argent** : 2 points
 * 🥉 **Bronze** : 1 point
 
@@ -29,8 +30,8 @@ Le classement officiel des JO peut être biaisé : une seule médaille d'or plac
 * `data/` : Datasets historiques des Jeux Olympiques.
 
 ## ⚙️ Installation
-1. Activer l'environnement virtuel (ex: `data_env`).
-2. Installer les dépendances : `pip install streamlit pandas seaborn matplotlib`.
+1. Activer l'environnement virtuel.
+2. Installer les dépendances : `pip install -r requirements.txt`.
 3. Lancer l'application : `streamlit run main.py`.
 
 ---
