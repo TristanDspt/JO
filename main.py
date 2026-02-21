@@ -160,7 +160,7 @@ if not df_filtre.empty:
 
     with col_s:
         periode = st.select_slider(
-            "Filtrer la période historique (le cumul repart à zéro au début de la sélection) :",
+            "Filtrer la période historique :",
             options=annees_dispo,
             value=(min(annees_dispo), max(annees_dispo))
         )
