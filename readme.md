@@ -27,7 +27,7 @@ Le classement officiel des JO peut être biaisé : une seule médaille d'or plac
 ## 📂 Structure du projet
 * `main.py` : Interface utilisateur et logique de visualisation.
 * `logic.py` : Traitement des données, calculs des points et nettoyage.
-* `data/` : Datasets historiques des Jeux Olympiques.
+* `medals.xlsx` + `olympic_games.csv` : Datasets historiques des Jeux Olympiques.
 
 ## ⚙️ Installation
 1. Activer l'environnement virtuel.
