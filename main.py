@@ -104,7 +104,7 @@ if not df_filtre.empty:
     st.divider()
 
     config_col = {
-            "Rang": st.column_config.NumberColumn("Rang", width=40),
+            "Rang": st.column_config.NumberColumn("Rang", width=45),
             "Drapeau": st.column_config.ImageColumn("", width=45),
             "NV Rang": st.column_config.NumberColumn("#", width=30),
             "Nation": st.column_config.TextColumn("Nation"),
