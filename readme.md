@@ -35,4 +35,4 @@ Le classement officiel des JO peut être biaisé : une seule médaille d'or plac
 3. Lancer l'application : `streamlit run main.py`.
 
 ---
-*Projet réalisé par Tristan dans le cadre d'une reconversion Data Analyst / Dev IA.*
+*Projet réalisé par Tristan dans le cadre d'une reconversion Data Analyst.*
