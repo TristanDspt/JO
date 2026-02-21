@@ -152,20 +152,42 @@ if not df_filtre.empty:
     # LIGNE 3 : Evolution
     st.divider()
     st.markdown("<h3 style='text-align: center;'>📈 Évolution historique du Top 10 actuel</h3>", unsafe_allow_html=True)
-    
-    # Slider
-    annee_min = int(df_t10_cumul.index.min())
-    annee_max = int(df_t10_cumul.index.max())
 
-    # Un slider pour choisir la plage (ex: 1980 - 2024)
-    periode = st.select_slider(
-        "Filtrer la période historique :",
-        options=sorted(df_t10_cumul.index.tolist()),
-        value=(annee_min, annee_max)
+    # On définit la période dispo sur le DF de base (brut)
+    annees_dispo = sorted(df_t10_histo.index.tolist())
+
+    col_s, col_ex = st.columns([5, 2])
+
+    with col_s:
+        periode = st.select_slider(
+            "Filtrer la période historique (le cumul repart à zéro au début de la sélection) :",
+            options=annees_dispo,
+            value=(min(annees_dispo), max(annees_dispo))
+        )
+
+    # Filtre : On prend les données BRUTES sur la période
+    df_brut_zoom = df_t10_histo.loc[periode[0]:periode[1]]
+
+    # Cumul : On fait le cumulatif sur ce zoom uniquement
+    df_t10_zoom = df_brut_zoom.cumsum()
+
+    # Option pour masquer les USA
+    with col_ex:
+        pays_a_exclure = st.multiselect(
+            "🚫 Exclure du graphique :",
+            options=df_t10_zoom.columns.tolist(),
+            default=[]
     )
-    df_t10_zoom = df_t10_cumul.loc[periode[0]:periode[1]]
 
-    # Trie de la legende
+    if pays_a_exclure:
+        df_t10_zoom = df_t10_zoom.drop(columns=pays_a_exclure)
+
+    # On recalcule le tri de la légende (car si on vire les USA, le n°1 change)
+    dernier_score = df_t10_zoom.iloc[-1]
+    pays_tries = dernier_score.sort_values(ascending=False).index
+    df_t10_zoom = df_t10_zoom[pays_tries]
+
+    # Tri de la legende
     dernier_score = df_t10_zoom.iloc[-1]
     pays_tries = dernier_score.sort_values(ascending=False).index
     df_t10_zoom = df_t10_zoom[pays_tries]
@@ -181,7 +203,7 @@ if not df_filtre.empty:
     plt.tick_params(axis='x', pad=2, labelsize=11)
     plt.tick_params(axis='y', pad=2, labelsize=11) 
     ax2.set_xticks(df_t10_zoom.index[::2])
-    plt.xticks(rotation=0)
+    plt.xticks(rotation=45)
 
     ax2.legend(title="Nations", bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
     sns.despine(left=True, bottom=True)
