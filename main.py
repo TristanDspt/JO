@@ -108,9 +108,9 @@ if not df_filtre.empty:
             "Drapeau": st.column_config.ImageColumn("", width=45),
             "NV Rang": st.column_config.NumberColumn("#", width=30),
             "Nation": st.column_config.TextColumn("Nation"),
-            "Or": st.column_config.NumberColumn(" 🥇", width=20),
-            "Argent": st.column_config.NumberColumn(" 🥈", width=20),
-            "Bronze": st.column_config.NumberColumn(" 🥉", width=20),
+            "Or": st.column_config.NumberColumn(" 🥇", width=30),
+            "Argent": st.column_config.NumberColumn(" 🥈", width=30),
+            "Bronze": st.column_config.NumberColumn(" 🥉", width=30),
             "Total": st.column_config.NumberColumn("Total", width=50, format="%d"),
             "Points": st.column_config.ProgressColumn(
                 "Points",
