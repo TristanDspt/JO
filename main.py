@@ -154,15 +154,16 @@ if not df_filtre.empty:
     st.markdown("<h3 style='text-align: center;'>📈 Évolution historique du Top 10 actuel</h3>", unsafe_allow_html=True)
 
     # On définit la période dispo sur le DF de base (brut)
-    annees_dispo = sorted(df_t10_histo.index.tolist())
+    toutes_annees = sorted(df_t10_histo.index.tolist())
+    annees_limitees = [a for a in toutes_annees if a <= annee_choisie]
 
     col_s, col_ex = st.columns([5, 2])
 
     with col_s:
         periode = st.select_slider(
-            "Filtrer la période historique :",
-            options=annees_dispo,
-            value=(min(annees_dispo), max(annees_dispo))
+        "Filtrer la période historique :",
+        options=annees_limitees,
+        value=(min(annees_limitees), max(annees_limitees))
         )
 
     # Filtre : On prend les données BRUTES sur la période
